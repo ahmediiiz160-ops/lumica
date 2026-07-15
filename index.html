@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/AHMED/Downloads/index_52.html -->
+<!-- saved from url=(0046)file:///C:/Users/AHMED/Downloads/index_54.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
@@ -413,7 +413,7 @@ async function pushRemoteRow(dataObj) {
 /* Owners-only tool, six tabs:                                         */
 /*  1. Treatments   — log patient / treatment / doctor / fee.          */
 /*                    Commission rate comes from the Doctors tab.      */
-/*  2. Doctors      — 3 fixed doctors locked at 40% each, plus any     */
+/*  2. Doctors      — 3 fixed doctors locked at 25% each, plus any     */
 /*                    other doctors added manually with editable rate. */
 /*  3. Dentist profit — per-doctor commission summary.                 */
 /*  4. Clinic profit  — net profit, reserve fund, owner split.         */
@@ -592,24 +592,36 @@ const Package = p => /*#__PURE__*/React.createElement(Icon, p, /*#__PURE__*/Reac
 }), /*#__PURE__*/React.createElement("path", {
   d: "M12 22V12.5"
 }));
-let nextId = 1;
-const uid = () => nextId++;
+
+// IDs must be globally unique across every device, even if a phone has been
+// offline for weeks or its local cache is stale — a simple per-device counter
+// (old approach) can produce the same ID on two different phones, which then
+// silently collide once everything syncs together (two records end up sharing
+// one ID, and edits to one can appear to "do nothing" to the other). Basing
+// IDs on the current timestamp instead makes a collision effectively impossible.
+let idCounter = 0;
+function uid() {
+  idCounter = (idCounter + 1) % 1000;
+  return Date.now() * 1000 + idCounter;
+}
+let nextId = 1; // kept only so older helper functions referencing it still work; no longer used for ID generation
+
 const _saved = loadSavedData();
 nextId = highestId(_saved) + 1;
 const startingDoctors = [{
   id: 1,
   name: "Dr. Ahmed Madany",
-  rate: 40,
+  rate: 25,
   locked: true
 }, {
   id: 2,
   name: "Dr. Ali Gedawy",
-  rate: 40,
+  rate: 25,
   locked: true
 }, {
   id: 3,
   name: "Dr. Seif Hatem",
-  rate: 40,
+  rate: 25,
   locked: true
 }];
 
@@ -940,7 +952,7 @@ function ClinicTool() {
   const addDoctor = () => setDoctors(ds => [...ds, {
     id: uid(),
     name: "",
-    rate: 40,
+    rate: 25,
     locked: false
   }]);
   const removeUnlockedDoctor = id => setDoctors(ds => ds.filter(d => !(d.id === id && !d.locked)));
@@ -2006,7 +2018,7 @@ function ClinicTool() {
     className: "text-sm font-semibold text-neutral-700"
   }, "Fixed doctors")), /*#__PURE__*/React.createElement("p", {
     className: "mb-3 text-xs text-neutral-400"
-  }, "These three are locked at 40% commission each and can't be renamed or edited here."), /*#__PURE__*/React.createElement("div", {
+  }, "These three are locked at 25% commission each and can't be renamed or edited here."), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2"
   }, doctors.filter(d => d.locked).map(d => /*#__PURE__*/React.createElement("div", {
     key: d.id,
